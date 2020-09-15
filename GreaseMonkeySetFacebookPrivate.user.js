@@ -22,38 +22,38 @@
 
     const SCRIPT_NAME = "facebook set posts to private"
     console.log('Loading', SCRIPT_NAME)
+    let GLOBAL_TIMEOUT = Infinity
+    function delayPromise(delay) {
+        return new Promise(resolve => setTimeout(() => { resolve() }, delay))
+    }
+    async function get_selector_visible(selector, period, timeout = GLOBAL_TIMEOUT) {
+        let s_time = performance.now()
+        while (performance.now() - s_time < timeout) {
+            let obj = document.querySelector(selector)
+            if (obj && !(window.getComputedStyle(obj).display === "none" || window.getComputedStyle(obj).visibility === "hidden"))
+                // checks if exists in dom? and supposedly? visible
+                return obj
+            await delayPromise(period)
+        }
+        throw "Waiting timed out: " + selector;
+    }
+    async function get_selector_not_visible(selector, period, timeout = GLOBAL_TIMEOUT) {
+        let s_time = performance.now()
+        while (performance.now() - s_time < timeout) {
+            let obj = document.querySelector(selector)
+            if (!obj || (window.getComputedStyle(obj).display === "none" || window.getComputedStyle(obj).visibility === "hidden"))
+                // checks if exists in dom? and supposedly? visible
+                return obj
+            await delayPromise(period)
+        }
+        throw "Waiting timed out: " + selector;
+    }
     //set privacy action
     if (document.URL.match("https://www.facebook.com/.+/posts/.+|https://www.facebook.com/photo.+")) {
         (function () {
             'use strict';
-            
+
             console.log("Initializing")
-            let GLOBAL_TIMEOUT = Infinity
-            function delayPromise(delay) {
-                return new Promise(resolve => setTimeout(() => { resolve() }, delay))
-            }
-            async function get_selector_visible(selector, period, timeout = GLOBAL_TIMEOUT) {
-                let s_time = performance.now()
-                while (performance.now() - s_time < timeout) {
-                    let obj = document.querySelector(selector)
-                    if (obj && !(window.getComputedStyle(obj).display === "none" || window.getComputedStyle(obj).visibility === "hidden"))
-                        // checks if exists in dom? and supposedly? visible
-                        return obj
-                    await delayPromise(period)
-                }
-                throw "Waiting timed out: " + selector;
-            }
-            async function get_selector_not_visible(selector, period, timeout = GLOBAL_TIMEOUT) {
-                let s_time = performance.now()
-                while (performance.now() - s_time < timeout) {
-                    let obj = document.querySelector(selector)
-                    if (!obj || (window.getComputedStyle(obj).display === "none" || window.getComputedStyle(obj).visibility === "hidden"))
-                        // checks if exists in dom? and supposedly? visible
-                        return obj
-                    await delayPromise(period)
-                }
-                throw "Waiting timed out: " + selector;
-            }
             let three_dot_menu_selector = "div > div.nqmvxvec.j83agx80.jnigpg78.cxgpxx05.dflh9lhu.sj5x9vvc.scb9dxdr.odw8uiq3 > div > div"
             let menu_buttons_selector = "div.cwj9ozl2.ue3kfks5.pw54ja7n.uo3d90p7.l82x9zwi.nwpbqux9.rq0escxv.jgsskzai.ni8dbmo4.stjgntxs > div > div.j83agx80.cbu4d94t.buofh1pr > div.tojvnm2t.a6sixzi8.k5wvi7nf.q3lfd5jv.pk4s997a.bipmatt0.cebpdrjk.qowsmv63.owwhemhu.dp1hu0rb.dhp61c6y.l9j0dhe7.iyyx5f41.a8s20v7p > div"
             let only_me_choice_selector = "div.kr520xx4.pedkr2u6.ms05siws.pnx7fd3z.b7h9ocf4.pmk7jnqg.j9ispegn.k4urcfbm > div.cbu4d94t.j83agx80 > div > div > div > div > div > div > div:nth-child(5) > div"
@@ -78,6 +78,7 @@
                 await get_selector_visible(menu_buttons_selector)
                 let buttons = document.querySelectorAll(menu_buttons_selector)
                 for (const b of buttons) {
+                    //make cross language with icon detection instead?
                     if (b.innerText === "Edit audience")
                         edit_audience_menu_button = b
                 }
@@ -109,21 +110,13 @@
         (function () {
             'use strict'
             console.log("Initializing")
-            function delayPromise(delay) {
-                return new Promise(resolve => setTimeout(() => { resolve() }, delay))
-            }
-
             function get_items() {
                 let activity_selector = "#mount_0_0 > div > div:nth-child(1) > div.rq0escxv.l9j0dhe7.du4w35lb > div.rq0escxv.l9j0dhe7.du4w35lb > div > div > div.j83agx80.cbu4d94t.d6urw2fd.dp1hu0rb.l9j0dhe7.du4w35lb > div.rq0escxv.l9j0dhe7.du4w35lb.j83agx80.pfnyh3mw.jifvfom9.gs1a9yip.owycx6da.btwxx1t3.buofh1pr.dp1hu0rb.ka73uehy > div.rq0escxv.l9j0dhe7.tkr6xdv7.j83agx80.cbu4d94t.pfnyh3mw.d2edcug0.hpfvmrgz.dp1hu0rb.rek2kq2y.o36gj0jk > div > div.q5bimw55.rpm2j7zs.k7i0oixp.gvuykj2m.j83agx80.cbu4d94t.ni8dbmo4.eg9m0zos.l9j0dhe7.du4w35lb.ofs802cu.pohlnb88.dkue75c7.mb9wzai9.d8ncny3e.buofh1pr.g5gj957u.tgvbjcpo.l56l04vs.r57mb794.kh7kg01d.c3g1iek1.k4xni2cv > div.j83agx80.cbu4d94t.buofh1pr > div.aov4n071 > div *> div> a"
                 return document.querySelectorAll(activity_selector)
             }
             window.addEventListener('load', async () => {
                 console.log("Injecting GUI")
-                await delayPromise(1000)
-
-                let parent_selector = "#mount_0_0 > div > div:nth-child(1) > div.rq0escxv.l9j0dhe7.du4w35lb > div.rq0escxv.l9j0dhe7.du4w35lb > div > div > div.j83agx80.cbu4d94t.d6urw2fd.dp1hu0rb.l9j0dhe7.du4w35lb > div.rq0escxv.l9j0dhe7.du4w35lb.j83agx80.pfnyh3mw.jifvfom9.gs1a9yip.owycx6da.btwxx1t3.buofh1pr.dp1hu0rb.ka73uehy > div.rq0escxv.l9j0dhe7.tkr6xdv7.j83agx80.cbu4d94t.pfnyh3mw.d2edcug0.hpfvmrgz.dp1hu0rb.rek2kq2y.o36gj0jk > div > div.q5bimw55.rpm2j7zs.k7i0oixp.gvuykj2m.j83agx80.cbu4d94t.ni8dbmo4.eg9m0zos.l9j0dhe7.du4w35lb.ofs802cu.pohlnb88.dkue75c7.mb9wzai9.d8ncny3e.buofh1pr.g5gj957u.tgvbjcpo.l56l04vs.r57mb794.kh7kg01d.c3g1iek1.k4xni2cv > div.j83agx80.cbu4d94t.buofh1pr > div.aov4n071 > div.n1l5q3vz.tvfksri0.oygrvhab.gu00c43d.rz7trki1.l9j0dhe7.tkr6xdv7 > div > div.rq0escxv.l9j0dhe7.du4w35lb.j83agx80.cbu4d94t.pfnyh3mw.d2edcug0.hpfvmrgz.p8fzw8mz.a8nywdso.iuny7tx3.discj3wi > div > span"
-                parent_selector = "#mount_0_0 > div > div:nth-child(1) > div.rq0escxv.l9j0dhe7.du4w35lb > div.rq0escxv.l9j0dhe7.du4w35lb > div > div > div.j83agx80.cbu4d94t.d6urw2fd.dp1hu0rb.l9j0dhe7.du4w35lb > div.rq0escxv.l9j0dhe7.du4w35lb.j83agx80.pfnyh3mw.jifvfom9.gs1a9yip.owycx6da.btwxx1t3.buofh1pr.dp1hu0rb.ka73uehy > div.rq0escxv.l9j0dhe7.tkr6xdv7.j83agx80.cbu4d94t.pfnyh3mw.d2edcug0.hpfvmrgz.dp1hu0rb.rek2kq2y.o36gj0jk > div > div.rq0escxv.l9j0dhe7.du4w35lb.j83agx80.pfnyh3mw.i1fnvgqd.bp9cbjyn.owycx6da.btwxx1t3.jei6r52m.wkznzc2l.n851cfcs.dhix69tm > div > div > div.rq0escxv.l9j0dhe7.du4w35lb.d2edcug0.hpfvmrgz.kud993qy.buofh1pr.g5gj957u > div > div > span > h1"
-                let parent = document.querySelector(parent_selector)
+                let parent = document.body
                 function insertAfter(referenceNode, newNode) {
                     referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
                 }
@@ -133,7 +126,6 @@
                 min.value = GM_getValue("from", null) + 1 //one based
                 let spanMax = document.createElement('div'); spanMax.innerText = "To:(Blank=No Limit)", divInputs.appendChild(spanMax)
                 let max = addInput(divInputs)
-                parent.appendChild(divInputs)
 
                 function openRangeButtonActionClosure(min_input_element, max_input_element) {
                     return function openRangeButtonAction() {
@@ -150,7 +142,14 @@
                 let divButtons = document.createElement('div')
                 addButton('Open Range', openRangeButtonActionClosure(min, max), divButtons)
                 addButton('Open All', openButtonAction, divButtons)
-                parent.appendChild(divButtons)
+
+                let div = document.createElement('div')
+                let cssObj = { position: 'fixed', display: "block", 'z-index': 3, background: "#ffffff", border: "3px solid red" }
+                Object.keys(cssObj).forEach(key => div.style[key] = cssObj[key])
+                div.appendChild(divButtons)
+                div.appendChild(divInputs)
+
+                parent.insertBefore(div, parent.childNodes[0])
 
             })
             function addInput(parentElement = document.body, cssObj) {
