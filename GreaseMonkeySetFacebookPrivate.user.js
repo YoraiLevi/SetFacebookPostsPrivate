@@ -6,7 +6,7 @@
 // @update      https://raw.githubusercontent.com/YoraiLevi/SetFacebookPostsPrivate/master/GreaseMonkeySetFacebookPrivate.user.js
 // @supportURL  https://github.com/YoraiLevi/SetFacebookPostsPrivate/issues
 // @include     https://www.facebook.com/*
-// @version     0.1
+// @version     0.2
 // @grant       GM_setValue
 // @grant       GM_getValue
 // @grant       GM.openInTab
@@ -18,13 +18,16 @@
 
 //3 user scripts merged into a single file:
 (function () {
+    'use strict';
+
     const SCRIPT_NAME = "facebook set posts to private"
     console.log('Loading', SCRIPT_NAME)
     //set privacy action
     if (document.URL.match("https://www.facebook.com/.+/posts/.+|https://www.facebook.com/photo.+")) {
         (function () {
-            console.log("Initializing")
             'use strict';
+            
+            console.log("Initializing")
             let GLOBAL_TIMEOUT = Infinity
             function delayPromise(delay) {
                 return new Promise(resolve => setTimeout(() => { resolve() }, delay))
@@ -60,6 +63,12 @@
             })
             async function setPrivate() {
                 console.log("Setting post to private")
+
+                //checking privacy state:
+                const only_me_lock_icon = "https://static.xx.fbcdn.net/rsrc.php/v3/yD/r/JSmL99pVrUz.png"
+                let audience = document.querySelector("div > span > span > div > div > div> img")
+                if (audience && audience.src === only_me_lock_icon)
+                    close()
                 //The actual action to set a post to private
                 let three_dot_menu = await get_selector_visible(three_dot_menu_selector)
                 three_dot_menu.click()
@@ -86,18 +95,20 @@
                 // closeX.click()
                 only_me_choice.click()
                 await get_selector_not_visible(only_me_choice_selector)
+                //wait for privacy to change in page
+                while (audience && audience.src !== "https://static.xx.fbcdn.net/rsrc.php/v3/yD/r/JSmL99pVrUz.png") {
+                    console.log("Waiting for audience to update")
+                    await delayPromise(100)
+                }
                 close()
-                await delayPromise(1000)
             }
-
-
         })();
     }
     //inject activity manager
     else if (document.URL.match("https://www.facebook.com/.+/allactivity.+")) {
         (function () {
-            console.log("Initializing")
             'use strict'
+            console.log("Initializing")
             function delayPromise(delay) {
                 return new Promise(resolve => setTimeout(() => { resolve() }, delay))
             }
@@ -119,7 +130,7 @@
                 let divInputs = document.createElement('div')
                 let spanMin = document.createElement('div'); spanMin.innerText = "From:(Blank=First)", divInputs.appendChild(spanMin)
                 let min = addInput(divInputs)
-                min.value = GM_getValue("from", null)
+                min.value = GM_getValue("from", null) + 1 //one based
                 let spanMax = document.createElement('div'); spanMax.innerText = "To:(Blank=No Limit)", divInputs.appendChild(spanMax)
                 let max = addInput(divInputs)
                 parent.appendChild(divInputs)
@@ -129,6 +140,7 @@
                         //The gui is 1 indexed and the functions are 0 indexed
                         let from = min_input_element.value ? min_input_element.value - 1 : 0
                         let to = max_input_element.value ? max_input_element.value - 1 : Infinity
+                        console.log("Processing range [from:", from, "to:", to, ")")
                         openRange(from, to)
                     }
                 }
@@ -160,47 +172,52 @@
             }
             async function openRange(from, to) {
                 //zero indexed [0from,to)
-                async function openURLRange(from, to, frequency = 5000) {
-                    console.log("openurlrange", from, to)
-                    async function handleURLs(urls) {
-                        if (urls.length === 0)
-                            return
-                        let url = urls.shift()
-                        let tab = await GM.openInTab(url, false)
-                        tab.onclose = async () => {
-                            GM_setValue("from", GM_getValue("from", 0) + 1)
-                            handleURLs(urls)
+                async function handleRange(from, to) {
+                    let items = Array.from(get_items())
+                    let rangeItems = items.slice(from, to)
+                    //reseting from value to valid value per iteration
+                    GM_setValue("from", from)
+                    const only_me_lock_icon = "https://static.xx.fbcdn.net/rsrc.php/v3/yD/r/JSmL99pVrUz.png"
+                    for (const item of rangeItems) {
+                        console.log("Processing element:", item)
+                        let audience = item.querySelector("*>img")
+                        if (audience && audience.src !== only_me_lock_icon) {
+                            await new Promise(async (resolve, reject) => {
+                                let tab = await GM.openInTab(item.href, false)
+                                tab.onclose = () => {
+                                    resolve()
+                                }
+                            })
                         }
-                        while (urls.length) {
-                            await delayPromise(frequency)
-                            console.log("Waitinf for more: ", urls.length, " urls to finish in batch")
-                        }
+                        GM_setValue("from", GM_getValue("from", 0) + 1)
                     }
-                    let items = get_items()
-                    let urls = Array.from(items).slice(from, to).map(x => x.href)
-                    GM_setValue("from", items.length-urls.length)
-                    await handleURLs(urls)
                     return items.length
                 }
-                async function scrollRange(from) {
-                    console.log("scrollrange", from)
+                async function scrollRange(from, max_failures = 30) {
                     //zero indexed [0from,to)
+                    let failed = 0;
+                    let prevscrollTop = null;
                     while (from > get_items().length - 1) {
                         //from is both an index and is inclusive!
                         let scrolling_container_selector = "#mount_0_0 > div > div:nth-child(1) > div.rq0escxv.l9j0dhe7.du4w35lb > div.rq0escxv.l9j0dhe7.du4w35lb > div > div > div.j83agx80.cbu4d94t.d6urw2fd.dp1hu0rb.l9j0dhe7.du4w35lb > div.rq0escxv.l9j0dhe7.du4w35lb.j83agx80.pfnyh3mw.jifvfom9.gs1a9yip.owycx6da.btwxx1t3.buofh1pr.dp1hu0rb.ka73uehy > div.rq0escxv.l9j0dhe7.tkr6xdv7.j83agx80.cbu4d94t.pfnyh3mw.d2edcug0.hpfvmrgz.dp1hu0rb.rek2kq2y.o36gj0jk > div > div.q5bimw55.rpm2j7zs.k7i0oixp.gvuykj2m.j83agx80.cbu4d94t.ni8dbmo4.eg9m0zos.l9j0dhe7.du4w35lb.ofs802cu.pohlnb88.dkue75c7.mb9wzai9.d8ncny3e.buofh1pr.g5gj957u.tgvbjcpo.l56l04vs.r57mb794.kh7kg01d.c3g1iek1.k4xni2cv"
                         let scrolling_container = document.querySelector(scrolling_container_selector)
+                        //are we at the bottom?
+                        if (prevscrollTop === scrolling_container.scrollTop) {
+                            failed++;
+                            //yes we are and for too long, something is either wrong or we're done.
+                            if (failed > max_failures)
+                                throw "Failure Scrolling Down, is that everything?"
+                        }
+                        prevscrollTop = scrolling_container.scrollTop
                         scrolling_container.scrollTop = scrolling_container.scrollHeight
                         await delayPromise(1000)
                     }
                 }
                 while (from < to) {
-                    console.log("newfrom", from)
                     await scrollRange(from)
-                    from = await openURLRange(from, to)
+                    from = await handleRange(from, to)
                 }
             }
-
-
         }())
     }
     //ignore
