@@ -3,9 +3,6 @@
 an Automation tool that sets posts in facebook's activity log to private for the new 2020 design.  
 this script attempts to resolve the need to set to private your entire posts history.
 Previously this was easily doable with a simple for loop but since the new 2020 design it is not.  
-## Notes:
-**please enable(temporarily) popups on facebook to use this script.**  
-As it is currently the activity log cannot show iteratively more than about 40-50 posts without redirecting, thus solved with popups.
 ## Installation
 1) download TamperMonkey/GreaseMonkey(untested) for chrome or firefox respectively and go to the url: 
 2) install the script by [clicking here](https://raw.githubusercontent.com/YoraiLevi/SetFacebookPostsPrivate/master/GreaseMonkeySetFacebookPrivate.user.js) or from [greasyfork](https://greasyfork.org/en/scripts/411305-facebook-set-posts-to-private)
@@ -18,6 +15,6 @@ As it is currently the activity log cannot show iteratively more than about 40-5
    1)  to bulk set the privacy of everything to private use `Open All`  
    2)  to set only a range of posts to private type numerical values and click `Open Range`  
 
-4)  Enjoy all the popups.
+4)  Enjoy all the tabs.
 
 ## Support and Feature requests: [open an issue at github](https://github.com/YoraiLevi/SetFacebookPostsPrivate/issues)

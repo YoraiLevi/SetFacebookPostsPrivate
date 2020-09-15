@@ -9,15 +9,21 @@
 // @version     0.1
 // @grant       GM_setValue
 // @grant       GM_getValue
+// @grant       GM.openInTab
+// @grant       window.close
+// @run-at      document-idle
 
 
 // ==/UserScript==
 
 //3 user scripts merged into a single file:
 (function () {
+    const SCRIPT_NAME = "facebook set posts to private"
+    console.log('Loading', SCRIPT_NAME)
     //set privacy action
-    if (document.URL.match("https://www.facebook.com/.+/posts/.+")) {
+    if (document.URL.match("https://www.facebook.com/.+/posts/.+|https://www.facebook.com/photo.+")) {
         (function () {
+            console.log("Initializing")
             'use strict';
             let GLOBAL_TIMEOUT = Infinity
             function delayPromise(delay) {
@@ -53,6 +59,7 @@
                 setPrivate()
             })
             async function setPrivate() {
+                console.log("Setting post to private")
                 //The actual action to set a post to private
                 let three_dot_menu = await get_selector_visible(three_dot_menu_selector)
                 three_dot_menu.click()
@@ -75,8 +82,8 @@
 
                 await delayPromise(1000)
                 //dummy(presses the x to close window)
-                //let a = document.querySelector("#mount_0_0 > div > div:nth-child(1) > div.rq0escxv.l9j0dhe7.du4w35lb > div:nth-child(5) > div > div > div.rq0escxv.l9j0dhe7.du4w35lb > div > div.iqfcb0g7.tojvnm2t.a6sixzi8.k5wvi7nf.q3lfd5jv.pk4s997a.bipmatt0.cebpdrjk.qowsmv63.owwhemhu.dp1hu0rb.dhp61c6y.l9j0dhe7.iyyx5f41.a8s20v7p > div > div > div > div > div.kr520xx4.pedkr2u6.ms05siws.pnx7fd3z.b7h9ocf4.pmk7jnqg.j9ispegn.k4urcfbm > div.cypi58rs.pmk7jnqg.fcg2cn6m.tkr6xdv7 > div")
-                //a.click()
+                // let closeX = await get_selector_visible("#mount_0_0 > div > div:nth-child(1) > div.rq0escxv.l9j0dhe7.du4w35lb > div:nth-child(5) > div > div > div.rq0escxv.l9j0dhe7.du4w35lb > div > div.iqfcb0g7.tojvnm2t.a6sixzi8.k5wvi7nf.q3lfd5jv.pk4s997a.bipmatt0.cebpdrjk.qowsmv63.owwhemhu.dp1hu0rb.dhp61c6y.l9j0dhe7.iyyx5f41.a8s20v7p > div > div > div > div > div.kr520xx4.pedkr2u6.ms05siws.pnx7fd3z.b7h9ocf4.pmk7jnqg.j9ispegn.k4urcfbm > div.cypi58rs.pmk7jnqg.fcg2cn6m.tkr6xdv7 > div")
+                // closeX.click()
                 only_me_choice.click()
                 await get_selector_not_visible(only_me_choice_selector)
                 close()
@@ -89,6 +96,7 @@
     //inject activity manager
     else if (document.URL.match("https://www.facebook.com/.+/allactivity.+")) {
         (function () {
+            console.log("Initializing")
             'use strict'
             function delayPromise(delay) {
                 return new Promise(resolve => setTimeout(() => { resolve() }, delay))
@@ -99,6 +107,7 @@
                 return document.querySelectorAll(activity_selector)
             }
             window.addEventListener('load', async () => {
+                console.log("Injecting GUI")
                 await delayPromise(1000)
 
                 let parent_selector = "#mount_0_0 > div > div:nth-child(1) > div.rq0escxv.l9j0dhe7.du4w35lb > div.rq0escxv.l9j0dhe7.du4w35lb > div > div > div.j83agx80.cbu4d94t.d6urw2fd.dp1hu0rb.l9j0dhe7.du4w35lb > div.rq0escxv.l9j0dhe7.du4w35lb.j83agx80.pfnyh3mw.jifvfom9.gs1a9yip.owycx6da.btwxx1t3.buofh1pr.dp1hu0rb.ka73uehy > div.rq0escxv.l9j0dhe7.tkr6xdv7.j83agx80.cbu4d94t.pfnyh3mw.d2edcug0.hpfvmrgz.dp1hu0rb.rek2kq2y.o36gj0jk > div > div.q5bimw55.rpm2j7zs.k7i0oixp.gvuykj2m.j83agx80.cbu4d94t.ni8dbmo4.eg9m0zos.l9j0dhe7.du4w35lb.ofs802cu.pohlnb88.dkue75c7.mb9wzai9.d8ncny3e.buofh1pr.g5gj957u.tgvbjcpo.l56l04vs.r57mb794.kh7kg01d.c3g1iek1.k4xni2cv > div.j83agx80.cbu4d94t.buofh1pr > div.aov4n071 > div.n1l5q3vz.tvfksri0.oygrvhab.gu00c43d.rz7trki1.l9j0dhe7.tkr6xdv7 > div > div.rq0escxv.l9j0dhe7.du4w35lb.j83agx80.cbu4d94t.pfnyh3mw.d2edcug0.hpfvmrgz.p8fzw8mz.a8nywdso.iuny7tx3.discj3wi > div > span"
@@ -153,21 +162,24 @@
                 //zero indexed [0from,to)
                 async function openURLRange(from, to, frequency = 5000) {
                     console.log("openurlrange", from, to)
-                    async function handleURL(url) {
-                        let params = `scrollbars=no,resizable=no,status=no,location=no,toolbar=no,menubar=no,
-                                width=600,height=300,left=100,top=100`;
-                        let popup = open(url, url, params);
+                    async function handleURLs(urls) {
+                        if (urls.length === 0)
+                            return
+                        let url = urls.shift()
+                        let tab = await GM.openInTab(url, false)
+                        tab.onclose = async () => {
+                            GM_setValue("from", GM_getValue("from", 0) + 1)
+                            handleURLs(urls)
+                        }
+                        while (urls.length) {
+                            await delayPromise(frequency)
+                            console.log("Waitinf for more: ", urls.length, " urls to finish in batch")
+                        }
                     }
                     let items = get_items()
                     let urls = Array.from(items).slice(from, to).map(x => x.href)
-                    let i = 1;
-                    for (const url of urls) {
-                        handleURL(url)
-                        i++
-                        GM_setValue("from", from + i)
-                        await delayPromise(frequency)
-                    }
-                    console.log(items.length)
+                    GM_setValue("from", items.length-urls.length)
+                    await handleURLs(urls)
                     return items.length
                 }
                 async function scrollRange(from) {
