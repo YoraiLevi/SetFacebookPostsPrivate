@@ -6,7 +6,7 @@
 // @update      https://raw.githubusercontent.com/YoraiLevi/SetFacebookPostsPrivate/master/GreaseMonkeySetFacebookPrivate.user.js
 // @supportURL  https://github.com/YoraiLevi/SetFacebookPostsPrivate/issues
 // @include     https://www.facebook.com/*
-// @version     0.2
+// @version     0.21
 // @grant       GM_setValue
 // @grant       GM_getValue
 // @grant       GM.openInTab
@@ -77,9 +77,20 @@
                 let edit_audience_menu_button = null
                 await get_selector_visible(menu_buttons_selector)
                 let buttons = document.querySelectorAll(menu_buttons_selector)
+                //audience icrons:
+                //public : https://static.xx.fbcdn.net/rsrc.php/v3/yS/r/k1K2sJ70emI.png
+                //friends with/out : https://static.xx.fbcdn.net/rsrc.php/v3/yH/r/hHt2U1bRtLs.png
+                //specific friends : https://static.xx.fbcdn.net/rsrc.php/v3/yv/r/cD5R2-Z_DDa.png
+                //lock - private : https://static.xx.fbcdn.net/rsrc.php/v3/yU/r/cfUGV2EoMCu.png
+                let imgs = ["https://static.xx.fbcdn.net/rsrc.php/v3/yS/r/k1K2sJ70emI.png",
+                    "https://static.xx.fbcdn.net/rsrc.php/v3/yH/r/hHt2U1bRtLs.png",
+                    "https://static.xx.fbcdn.net/rsrc.php/v3/yv/r/cD5R2-Z_DDa.png",
+                    "https://static.xx.fbcdn.net/rsrc.php/v3/yU/r/cfUGV2EoMCu.png"
+                ]
                 for (const b of buttons) {
                     //make cross language with icon detection instead?
-                    if (b.innerText === "Edit audience")
+                    let img = b.querySelector("*> img")
+                    if (img && imgs.indexOf(img.src) !== -1)
                         edit_audience_menu_button = b
                 }
                 if (edit_audience_menu_button) {
