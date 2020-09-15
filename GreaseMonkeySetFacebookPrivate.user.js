@@ -3,7 +3,7 @@
 // @description Automation tool that sets posts in facebooks activity log to private for the new 2020 design
 // @author      Yorai Levi
 // @namespace   https://github.com/YoraiLevi
-// @update      https://raw.githubusercontent.com/YoraiLevi/SetFacebookPostsPrivate/master/GreaseMonkeySetFacebookPrivate.js
+// @update      https://raw.githubusercontent.com/YoraiLevi/SetFacebookPostsPrivate/master/GreaseMonkeySetFacebookPrivate.user.js
 // @supportURL  https://github.com/YoraiLevi/SetFacebookPostsPrivate/issues
 // @include     https://www.facebook.com/*
 // @version     0.1

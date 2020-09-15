@@ -8,7 +8,7 @@ Previously this was easily doable with a simple for loop but since the new 2020 
 As it is currently the activity log cannot show iteratively more than about 40-50 posts without redirecting, thus solved with popups.
 ## Installation
 1) download TamperMonkey/GreaseMonkey(untested) for chrome or firefox respectively and go to the url: 
-2) install the script from: [greasyfork](https://greasyfork.org/en/scripts/411305-facebook-set-posts-to-private)
+2) install the script by [clicking here](https://raw.githubusercontent.com/YoraiLevi/SetFacebookPostsPrivate/master/GreaseMonkeySetFacebookPrivate.user.js) or from [greasyfork](https://greasyfork.org/en/scripts/411305-facebook-set-posts-to-private)
 ## Usage
 1) At facebook, while using the 2020 new design go to your activity log.
    * Search for activity log in facebook's search (usually first result)
