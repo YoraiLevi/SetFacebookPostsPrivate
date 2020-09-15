@@ -8,6 +8,7 @@ Previously this was easily doable with a simple for loop but since the new 2020 
 2) Make only a range of your posts and photos private.
 3) Continue where you left off! if you something happened and the progressed stopped just get back to your activity log apply the filter you had and continue as nothing happened! (Press `Open Range`)
 4) Aware of posts/photos audience settings! skips already privated ones.
+![image](https://user-images.githubusercontent.com/50873841/93251406-ce84f400-f79c-11ea-873a-a0f548bfc284.png)
 ## Possible Improvements:
 1) Make it work in the background without user interaction.
 2) Failure state handling and logging
@@ -22,7 +23,6 @@ Previously this was easily doable with a simple for loop but since the new 2020 
 * If the injected gui isn't shown please *refresh* the page
 * If the process is stuck on a post or an image setting the post manually to private and closing the tab might resolve the issue.
 * Make sure to let it do its thing without interruptions, using the computer while the job is running may cause it to fail or get stuck.
-* 
 1) At facebook, while using the 2020 new design go to your activity log.
    * Search for activity log in facebook's search (usually first result)
 
