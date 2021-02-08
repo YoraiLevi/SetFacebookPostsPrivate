@@ -48,6 +48,13 @@
         }
         throw "Waiting timed out: " + selector;
     }
+    const privacy_mode =  {
+            "public": "public",
+            "friends" : "friends",
+            "friends_except" : "friends_except",
+            "specific_friends" : "specific_friends",
+            "private": "private"
+        }
     //set privacy action
     if (document.URL.match("https://www.facebook.com/.+/posts/.+|https://www.facebook.com/photo.+")) {
         (function () {
@@ -56,37 +63,51 @@
             console.log("Initializing")
             let three_dot_menu_selector = "div > div.nqmvxvec.j83agx80.jnigpg78.cxgpxx05.dflh9lhu.sj5x9vvc.scb9dxdr.odw8uiq3 > div > div"
             let menu_buttons_selector = "div.cwj9ozl2.ue3kfks5.pw54ja7n.uo3d90p7.l82x9zwi.nwpbqux9.rq0escxv.jgsskzai.ni8dbmo4.stjgntxs > div > div.j83agx80.cbu4d94t.buofh1pr > div.tojvnm2t.a6sixzi8.k5wvi7nf.q3lfd5jv.pk4s997a.bipmatt0.cebpdrjk.qowsmv63.owwhemhu.dp1hu0rb.dhp61c6y.l9j0dhe7.iyyx5f41.a8s20v7p > div"
-            let only_me_choice_selector = "div.kr520xx4.pedkr2u6.ms05siws.pnx7fd3z.b7h9ocf4.pmk7jnqg.j9ispegn.k4urcfbm > div.cbu4d94t.j83agx80 > div > div > div > div > div > div > div:nth-child(5) > div"
+            const privacy_choice_selector =  {
+                "public": "div.kr520xx4.pedkr2u6.ms05siws.pnx7fd3z.b7h9ocf4.pmk7jnqg.j9ispegn.k4urcfbm > div.cbu4d94t.j83agx80 > div > div > div > div > div > div > div:nth-child(1) > div",
+                "friends" : "div.kr520xx4.pedkr2u6.ms05siws.pnx7fd3z.b7h9ocf4.pmk7jnqg.j9ispegn.k4urcfbm > div.cbu4d94t.j83agx80 > div > div > div > div > div > div > div:nth-child(2) > div",
+                "friends_except" : "div.kr520xx4.pedkr2u6.ms05siws.pnx7fd3z.b7h9ocf4.pmk7jnqg.j9ispegn.k4urcfbm > div.cbu4d94t.j83agx80 > div > div > div > div > div > div > div:nth-child(3) > div",
+                "specific_friends" : "div.kr520xx4.pedkr2u6.ms05siws.pnx7fd3z.b7h9ocf4.pmk7jnqg.j9ispegn.k4urcfbm > div.cbu4d94t.j83agx80 > div > div > div > div > div > div > div:nth-child(4) > div",
+                "private": "div.kr520xx4.pedkr2u6.ms05siws.pnx7fd3z.b7h9ocf4.pmk7jnqg.j9ispegn.k4urcfbm > div.cbu4d94t.j83agx80 > div > div > div > div > div > div > div:nth-child(5) > div"
+            }
             window.addEventListener('load', async () => {
                 await delayPromise(1000)
-                setPrivate()
+                await setPrivate(privacy_mode["public"])
+                close()
             })
-            async function setPrivate() {
-                console.log("Setting post to private")
-
+            //p
+            async function setPrivate(selected_privacy_mode) {
+                let only_me_choice_selector = privacy_choice_selector[selected_privacy_mode]
+                console.log("Setting post to",selected_privacy_mode)
+                
+                const post_privacy_mode_icons = {
+                    "public": "https://static.xx.fbcdn.net/rsrc.php/v3/yJ/r/YSM7OHnZVHv.png",
+                    "friends" : "https://static.xx.fbcdn.net/rsrc.php/v3/y5/r/9EJBw2oYDPv.png",
+                    "friends_except" : "https://static.xx.fbcdn.net/rsrc.php/v3/yA/r/cV1LK8Ks1o7.png",
+                    "specific_friends" : "https://static.xx.fbcdn.net/rsrc.php/v3/yq/r/NmyxV_4nmDz.png",
+                    "private": "https://static.xx.fbcdn.net/rsrc.php/v3/yD/r/JSmL99pVrUz.png"
+                }
                 //checking privacy state:
-                const only_me_lock_icon = "https://static.xx.fbcdn.net/rsrc.php/v3/yD/r/JSmL99pVrUz.png"
+                const privacy_settings_icon = post_privacy_mode_icons[privacy_mode[selected_privacy_mode]]
                 let audience = document.querySelector("div > span > span > div > div > div> img")
-                if (audience && audience.src === only_me_lock_icon)
-                    close()
-                //The actual action to set a post to private
+                if (audience && audience.src === privacy_settings_icon)
+                    return
+                //The actual action to set a post to the desired privacy
                 let three_dot_menu = await get_selector_visible(three_dot_menu_selector)
                 three_dot_menu.click()
-
-
+                
                 let edit_audience_menu_button = null
                 await get_selector_visible(menu_buttons_selector)
                 let buttons = document.querySelectorAll(menu_buttons_selector)
-                //audience icrons:
-                //public : https://static.xx.fbcdn.net/rsrc.php/v3/yS/r/k1K2sJ70emI.png
-                //friends with/out : https://static.xx.fbcdn.net/rsrc.php/v3/yH/r/hHt2U1bRtLs.png
-                //specific friends : https://static.xx.fbcdn.net/rsrc.php/v3/yv/r/cD5R2-Z_DDa.png
-                //lock - private : https://static.xx.fbcdn.net/rsrc.php/v3/yU/r/cfUGV2EoMCu.png
-                let imgs = ["https://static.xx.fbcdn.net/rsrc.php/v3/yS/r/k1K2sJ70emI.png",
-                    "https://static.xx.fbcdn.net/rsrc.php/v3/yH/r/hHt2U1bRtLs.png",
-                    "https://static.xx.fbcdn.net/rsrc.php/v3/yv/r/cD5R2-Z_DDa.png",
-                    "https://static.xx.fbcdn.net/rsrc.php/v3/yU/r/cfUGV2EoMCu.png"
-                ]
+
+                const privacy_selector_icons = {
+                    "public": "https://static.xx.fbcdn.net/rsrc.php/v3/yS/r/k1K2sJ70emI.png",
+                    "friends" : "https://static.xx.fbcdn.net/rsrc.php/v3/yH/r/hHt2U1bRtLs.png",
+                    "friends_except" : "https://static.xx.fbcdn.net/rsrc.php/v3/yH/r/hHt2U1bRtLs.png",
+                    "specific_friends" : "https://static.xx.fbcdn.net/rsrc.php/v3/yv/r/cD5R2-Z_DDa.png",
+                    "private": "https://static.xx.fbcdn.net/rsrc.php/v3/yU/r/cfUGV2EoMCu.png"
+                }
+                let imgs = Object.values(privacy_selector_icons);
                 for (const b of buttons) {
                     //make cross language with icon detection instead?
                     let img = b.querySelector("*> img")
@@ -97,7 +118,7 @@
                     edit_audience_menu_button.click()
                 }
                 else {
-                    close()
+                    return
                 }
                 let only_me_choice = await get_selector_visible(only_me_choice_selector)
 
@@ -108,11 +129,11 @@
                 only_me_choice.click()
                 await get_selector_not_visible(only_me_choice_selector)
                 //wait for privacy to change in page
-                while (audience && audience.src !== "https://static.xx.fbcdn.net/rsrc.php/v3/yD/r/JSmL99pVrUz.png") {
+                while (audience && audience.src !== post_privacy_mode_icons[selected_privacy_mode]) {
                     console.log("Waiting for audience to update")
                     await delayPromise(100)
                 }
-                close()
+                return
             }
         })();
     }
@@ -187,7 +208,7 @@
                     let rangeItems = items.slice(from, to)
                     //reseting from value to valid value per iteration
                     GM_setValue("from", from)
-                    const only_me_lock_icon = "https://static.xx.fbcdn.net/rsrc.php/v3/yD/r/JSmL99pVrUz.png"
+                    const only_me_lock_icon = post_privacy_mode_icons[privacy_mode["public"]]
                     for (const item of rangeItems) {
                         console.log("Processing element:", item)
                         let audience = item.querySelector("*>img")
