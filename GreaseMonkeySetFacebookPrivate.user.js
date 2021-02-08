@@ -55,7 +55,14 @@
             "specific_friends" : "specific_friends",
             "private": "private"
         }
-    //set privacy action
+    const post_privacy_mode_icons = {
+        "public": "https://static.xx.fbcdn.net/rsrc.php/v3/yJ/r/YSM7OHnZVHv.png",
+        "friends" : "https://static.xx.fbcdn.net/rsrc.php/v3/y5/r/9EJBw2oYDPv.png",
+        "friends_except" : "https://static.xx.fbcdn.net/rsrc.php/v3/yA/r/cV1LK8Ks1o7.png",
+        "specific_friends" : "https://static.xx.fbcdn.net/rsrc.php/v3/yq/r/NmyxV_4nmDz.png",
+        "private": "https://static.xx.fbcdn.net/rsrc.php/v3/yD/r/JSmL99pVrUz.png"
+    }
+        //set privacy action
     if (document.URL.match("https://www.facebook.com/.+/posts/.+|https://www.facebook.com/photo.+")) {
         (function () {
             'use strict';
@@ -80,13 +87,6 @@
                 let only_me_choice_selector = privacy_choice_selector[selected_privacy_mode]
                 console.log("Setting post to",selected_privacy_mode)
                 
-                const post_privacy_mode_icons = {
-                    "public": "https://static.xx.fbcdn.net/rsrc.php/v3/yJ/r/YSM7OHnZVHv.png",
-                    "friends" : "https://static.xx.fbcdn.net/rsrc.php/v3/y5/r/9EJBw2oYDPv.png",
-                    "friends_except" : "https://static.xx.fbcdn.net/rsrc.php/v3/yA/r/cV1LK8Ks1o7.png",
-                    "specific_friends" : "https://static.xx.fbcdn.net/rsrc.php/v3/yq/r/NmyxV_4nmDz.png",
-                    "private": "https://static.xx.fbcdn.net/rsrc.php/v3/yD/r/JSmL99pVrUz.png"
-                }
                 //checking privacy state:
                 const privacy_settings_icon = post_privacy_mode_icons[privacy_mode[selected_privacy_mode]]
                 let audience = document.querySelector("div > span > span > div > div > div> img")
