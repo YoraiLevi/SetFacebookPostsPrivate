@@ -3,10 +3,10 @@
 // @description Automation tool that sets posts in facebooks activity log to private for the new 2020 design
 // @author      Yorai Levi
 // @namespace   https://github.com/YoraiLevi
-// @update      https://raw.githubusercontent.com/YoraiLevi/SetFacebookPostsPrivate/master/GreaseMonkeySetFacebookPrivate.user.js
+// @update      https://github.com/YoraiLevi/SetFacebookPostsPrivate/raw/SetPublic/GreaseMonkeySetFacebookPrivate.user.js
 // @supportURL  https://github.com/YoraiLevi/SetFacebookPostsPrivate/issues
 // @include     https://www.facebook.com/*
-// @version     0.21.1
+// @version     0.22.1
 // @grant       GM_setValue
 // @grant       GM_getValue
 // @grant       GM.openInTab
@@ -35,6 +35,7 @@
                 return obj
             await delayPromise(period)
         }
+        TamperLog("Waiting timed out: " + selector)
         throw "Waiting timed out: " + selector;
     }
     async function get_selector_not_visible(selector, period, timeout = GLOBAL_TIMEOUT) {
@@ -46,6 +47,7 @@
                 return obj
             await delayPromise(period)
         }
+        TamperLog("Waiting timed out: " + selector)
         throw "Waiting timed out: " + selector;
     }
     const privacy_mode =  {
@@ -62,8 +64,13 @@
         "specific_friends" : "https://static.xx.fbcdn.net/rsrc.php/v3/yq/r/NmyxV_4nmDz.png",
         "private": "https://static.xx.fbcdn.net/rsrc.php/v3/yD/r/JSmL99pVrUz.png"
     }
+    function TamperLog(str){
+        let log = GM_getValue("log", [])
+        log.push(Date.now()+": "+str)
+        GM_setValue("log",log)
+    }
         //set privacy action
-    if (document.URL.match("https://www.facebook.com/.+/posts/.+|https://www.facebook.com/photo.+")) {
+    if (document.URL.match("https://www.facebook.com/.+/posts/.+|https://www.facebook.com/photo.+") && GM_getValue("active",false)) {
         (function () {
             'use strict';
 
@@ -80,6 +87,7 @@
             window.addEventListener('load', async () => {
                 await delayPromise(1000)
                 await setPrivate(privacy_mode["public"])
+                TamperLog("closing page: "+document.URL)
                 close()
             })
             //p
@@ -90,12 +98,14 @@
                 //checking privacy state:
                 const privacy_settings_icon = post_privacy_mode_icons[privacy_mode[selected_privacy_mode]]
                 let audience = document.querySelector("div > span > span > div > div > div> img")
-                if (audience && audience.src === privacy_settings_icon)
+                if (audience && audience.src === privacy_settings_icon){
+                    TamperLog(document.URL+" Post was detected to be "+privacy_mode[selected_privacy_mode]+"This is the correct privacy mode for this post.")
                     return
+                }
                 //The actual action to set a post to the desired privacy
                 let three_dot_menu = await get_selector_visible(three_dot_menu_selector)
                 three_dot_menu.click()
-                
+                TamperLog(document.URL+" Opened 3 dot menu")
                 let edit_audience_menu_button = null
                 await get_selector_visible(menu_buttons_selector)
                 let buttons = document.querySelectorAll(menu_buttons_selector)
@@ -107,6 +117,7 @@
                     "specific_friends" : "https://static.xx.fbcdn.net/rsrc.php/v3/yv/r/cD5R2-Z_DDa.png",
                     "private": "https://static.xx.fbcdn.net/rsrc.php/v3/yU/r/cfUGV2EoMCu.png"
                 }
+                TamperLog(document.URL+" Searching for audience settings images")
                 let imgs = Object.values(privacy_selector_icons);
                 for (const b of buttons) {
                     //make cross language with icon detection instead?
@@ -118,6 +129,7 @@
                     edit_audience_menu_button.click()
                 }
                 else {
+                    TamperLog(document.URL+" Couldn't detect edit_audience_menu_button")
                     return
                 }
                 let only_me_choice = await get_selector_visible(only_me_choice_selector)
@@ -126,13 +138,17 @@
                 //dummy(presses the x to close window)
                 // let closeX = await get_selector_visible("#mount_0_0 > div > div:nth-child(1) > div.rq0escxv.l9j0dhe7.du4w35lb > div:nth-child(5) > div > div > div.rq0escxv.l9j0dhe7.du4w35lb > div > div.iqfcb0g7.tojvnm2t.a6sixzi8.k5wvi7nf.q3lfd5jv.pk4s997a.bipmatt0.cebpdrjk.qowsmv63.owwhemhu.dp1hu0rb.dhp61c6y.l9j0dhe7.iyyx5f41.a8s20v7p > div > div > div > div > div.kr520xx4.pedkr2u6.ms05siws.pnx7fd3z.b7h9ocf4.pmk7jnqg.j9ispegn.k4urcfbm > div.cypi58rs.pmk7jnqg.fcg2cn6m.tkr6xdv7 > div")
                 // closeX.click()
+                TamperLog(document.URL+" Changing Privacy")
+
                 only_me_choice.click()
                 await get_selector_not_visible(only_me_choice_selector)
                 //wait for privacy to change in page
                 while (audience && audience.src !== post_privacy_mode_icons[selected_privacy_mode]) {
                     console.log("Waiting for audience to update")
+                    TamperLog(document.URL+" Waiting for audience to update")
                     await delayPromise(100)
                 }
+                TamperLog(document.URL+" Processing done. Post is correctly set to "+privacy_mode[selected_privacy_mode])
                 return
             }
         })();
@@ -174,7 +190,17 @@
                 let divButtons = document.createElement('div')
                 addButton('Open Range', openRangeButtonActionClosure(min, max), divButtons)
                 addButton('Open All', openButtonAction, divButtons)
-
+                function downloadLogs(){
+                    var a = document.createElement("a");
+                    a.href = "data:text,"+JSON.stringify(GM_getValue("log",[]), null, 2);
+                    a.download = "FacebookAutomationToolLog.txt";
+                    a.click();
+                }
+                addButton('Download Logs', downloadLogs, divButtons)
+                function stopButtonHandle(){
+                    GM_setValue("active",false)
+                }
+                addButton('Stop',stopButtonHandle,divButtons)
                 let div = document.createElement('div')
                 let cssObj = { position: 'fixed', display: "block", 'z-index': 3, background: "#ffffff", border: "3px solid red" }
                 Object.keys(cssObj).forEach(key => div.style[key] = cssObj[key])
@@ -202,6 +228,7 @@
                 return button
             }
             async function openRange(from, to) {
+                GM_setValue("active",true)
                 //zero indexed [0from,to)
                 async function handleRange(from, to) {
                     let items = Array.from(get_items())
@@ -210,6 +237,9 @@
                     GM_setValue("from", from)
                     const only_me_lock_icon = post_privacy_mode_icons[privacy_mode["public"]]
                     for (const item of rangeItems) {
+                        if(!GM_getValue("active",false))
+                            return
+                        TamperLog("Processing element:"+ item)
                         console.log("Processing element:", item)
                         let audience = item.querySelector("*>img")
                         if (audience && audience.src !== only_me_lock_icon) {
@@ -236,8 +266,10 @@
                         if (prevscrollTop === scrolling_container.scrollTop) {
                             failed++;
                             //yes we are and for too long, something is either wrong or we're done.
-                            if (failed > max_failures)
+                            if (failed > max_failures){
+                                TamperLog("Failure Scrolling Down, is that everything?")
                                 throw "Failure Scrolling Down, is that everything?"
+                            }
                         }
                         prevscrollTop = scrolling_container.scrollTop
                         scrolling_container.scrollTop = scrolling_container.scrollHeight
@@ -253,6 +285,7 @@
     }
     //ignore
     else if (document.URL.match("https://www.facebook.com/permalink.php.*|https://www.facebook.com/groups/.*")) {
+        TamperLog(document.URL+" This is a post from a group or an unavailable source. cannot change this privacy")
         close()
     }
 })();
