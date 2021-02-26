@@ -1,5 +1,5 @@
 # Bulk set your Facebook posts to private
-
+**If the script stops working please report on github!!!**  
 An automation tool that sets posts in facebook's activity log to private for the new 2020 design.  
 This script attempts to resolve the need to set to private your entire posts history.
 Previously this was easily doable with a simple for loop but since the new 2020 design it is not.  
