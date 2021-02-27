@@ -69,12 +69,42 @@
         log.push(Date.now()+": "+str)
         GM_setValue("log",log)
     }
+    function addInput(parentElement = document.body, cssObj) {
+        cssObj = cssObj || { position: 'relative', 'z-index': 3 }
+        let input = document.createElement('input'), btnStyle = input.style
+        parentElement.appendChild(input)
+        input.type = "number"
+        Object.keys(cssObj).forEach(key => btnStyle[key] = cssObj[key])
+        return input
+    }
+    function addButton(text, onclick, parentElement = document.body, cssObj) {
+        cssObj = cssObj || { position: 'relative', 'z-index': 3 }
+        let button = document.createElement('button'), btnStyle = button.style
+        parentElement.appendChild(button)
+        button.innerHTML = text
+        button.onclick = onclick
+        Object.keys(cssObj).forEach(key => btnStyle[key] = cssObj[key])
+        return button
+    }
         //set privacy action
     if (document.URL.match("https://www.facebook.com/.+/posts/.+|https://www.facebook.com/photo.+") && GM_getValue("active",false)) {
         (function () {
             'use strict';
 
             console.log("Initializing")
+
+            // window.addEventListener('load', async () => {
+            //     let parent = document.body
+            //     let divButtons = document.createElement('div')
+            //     addButton('Stop',stopButtonHandle,divButtons)
+            //     let div = document.createElement('div')
+            //     let cssObj = { position: 'fixed', display: "block", 'z-index': 3, background: "#ffffff", border: "3px solid red" }
+            //     Object.keys(cssObj).forEach(key => div.style[key] = cssObj[key])
+            //     div.appendChild(divButtons)
+            //     parent.insertBefore(div, parent.childNodes[0])
+
+            // })
+
             let three_dot_menu_selector = "div > div.nqmvxvec.j83agx80.jnigpg78.cxgpxx05.dflh9lhu.sj5x9vvc.scb9dxdr.odw8uiq3 > div > div"
             let menu_buttons_selector = "div.cwj9ozl2.ue3kfks5.pw54ja7n.uo3d90p7.l82x9zwi.nwpbqux9.rq0escxv.jgsskzai.ni8dbmo4.stjgntxs > div > div.j83agx80.cbu4d94t.buofh1pr > div.tojvnm2t.a6sixzi8.k5wvi7nf.q3lfd5jv.pk4s997a.bipmatt0.cebpdrjk.qowsmv63.owwhemhu.dp1hu0rb.dhp61c6y.l9j0dhe7.iyyx5f41.a8s20v7p > div"
             const privacy_choice_selector =  {
@@ -86,7 +116,7 @@
             }
             window.addEventListener('load', async () => {
                 await delayPromise(1000)
-                await setPrivate(privacy_mode["public"])
+                await setPrivate(GM_getValue("privacy_mode",privacy_mode["private"]))
                 TamperLog("closing page: "+document.URL)
                 close()
             })
@@ -206,6 +236,15 @@
                     GM_setValue("active",false)
                 }
                 addButton('Stop',stopButtonHandle,divButtons)
+
+                let SelectPrivacyMode = addOption(privacy_mode,divInputs)
+                function setPrivacyMode(){
+                    GM_setValue("privacy_mode",SelectPrivacyMode.value)
+                    console.log(GM_getValue("privacy_mode",privacy_mode["private"]))
+                }
+                SelectPrivacyMode.value = GM_getValue("privacy_mode",privacy_mode["private"])
+                SelectPrivacyMode.onchange = setPrivacyMode
+                
                 let div = document.createElement('div')
                 let cssObj = { position: 'fixed', display: "block", 'z-index': 3, background: "#ffffff", border: "3px solid red" }
                 Object.keys(cssObj).forEach(key => div.style[key] = cssObj[key])
@@ -215,22 +254,18 @@
                 parent.insertBefore(div, parent.childNodes[0])
 
             })
-            function addInput(parentElement = document.body, cssObj) {
+            function addOption(options, parentElement = document.body,cssObj){
                 cssObj = cssObj || { position: 'relative', 'z-index': 3 }
-                let input = document.createElement('input'), btnStyle = input.style
-                parentElement.appendChild(input)
-                input.type = "number"
+                let select = document.createElement('select'), btnStyle = select.style
+                parentElement.appendChild(select)
+                for (const [key, value] of Object.entries(options)) {
+                    let option = document.createElement('option')
+                    option.value = value
+                    option.innerText = key
+                    select.appendChild(option)
+                }
                 Object.keys(cssObj).forEach(key => btnStyle[key] = cssObj[key])
-                return input
-            }
-            function addButton(text, onclick, parentElement = document.body, cssObj) {
-                cssObj = cssObj || { position: 'relative', 'z-index': 3 }
-                let button = document.createElement('button'), btnStyle = button.style
-                parentElement.appendChild(button)
-                button.innerHTML = text
-                button.onclick = onclick
-                Object.keys(cssObj).forEach(key => btnStyle[key] = cssObj[key])
-                return button
+                return select
             }
             async function openRange(from, to) {
                 GM_setValue("active",true)
@@ -240,7 +275,7 @@
                     let rangeItems = items.slice(from, to)
                     //reseting from value to valid value per iteration
                     GM_setValue("from", from)
-                    const only_me_lock_icon = post_privacy_mode_icons[privacy_mode["public"]]
+                    const only_me_lock_icon = post_privacy_mode_icons[GM_getValue("privacy_mode",privacy_mode["private"])]
                     for (const item of rangeItems) {
                         if(!GM_getValue("active",false))
                             return
