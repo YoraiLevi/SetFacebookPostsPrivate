@@ -86,25 +86,24 @@
         Object.keys(cssObj).forEach(key => btnStyle[key] = cssObj[key])
         return button
     }
+    function stopButtonHandle(){
+        GM_setValue("active",false)
+    }
         //set privacy action
     if (document.URL.match("https://www.facebook.com/.+/posts/.+|https://www.facebook.com/photo.+") && GM_getValue("active",false)) {
         (function () {
             'use strict';
-
             console.log("Initializing")
-
-            // window.addEventListener('load', async () => {
-            //     let parent = document.body
-            //     let divButtons = document.createElement('div')
-            //     addButton('Stop',stopButtonHandle,divButtons)
-            //     let div = document.createElement('div')
-            //     let cssObj = { position: 'fixed', display: "block", 'z-index': 3, background: "#ffffff", border: "3px solid red" }
-            //     Object.keys(cssObj).forEach(key => div.style[key] = cssObj[key])
-            //     div.appendChild(divButtons)
-            //     parent.insertBefore(div, parent.childNodes[0])
-
-            // })
-
+            window.addEventListener('load', async () => {
+                let parent = document.body
+                let divButtons = document.createElement('div')
+                addButton('Stop',stopButtonHandle,divButtons)
+                let div = document.createElement('div')
+                let cssObj = { position: 'fixed', display: "block", 'z-index': 3, background: "#ffffff", border: "3px solid red" }
+                Object.keys(cssObj).forEach(key => div.style[key] = cssObj[key])
+                div.appendChild(divButtons)
+                parent.insertBefore(div, parent.childNodes[0])
+            })
             let three_dot_menu_selector = "div > div.nqmvxvec.j83agx80.jnigpg78.cxgpxx05.dflh9lhu.sj5x9vvc.scb9dxdr.odw8uiq3 > div > div"
             let menu_buttons_selector = "div.cwj9ozl2.ue3kfks5.pw54ja7n.uo3d90p7.l82x9zwi.nwpbqux9.rq0escxv.jgsskzai.ni8dbmo4.stjgntxs > div > div.j83agx80.cbu4d94t.buofh1pr > div.tojvnm2t.a6sixzi8.k5wvi7nf.q3lfd5jv.pk4s997a.bipmatt0.cebpdrjk.qowsmv63.owwhemhu.dp1hu0rb.dhp61c6y.l9j0dhe7.iyyx5f41.a8s20v7p > div"
             const privacy_choice_selector =  {
@@ -232,9 +231,6 @@
                     a.click();
                 }
                 addButton('Download Logs', downloadLogs, divButtons)
-                function stopButtonHandle(){
-                    GM_setValue("active",false)
-                }
                 addButton('Stop',stopButtonHandle,divButtons)
 
                 let SelectPrivacyMode = addOption(privacy_mode,divInputs)
