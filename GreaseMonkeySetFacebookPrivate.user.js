@@ -6,7 +6,7 @@
 // @update      https://github.com/YoraiLevi/SetFacebookPostsPrivate/raw/SetPublic/GreaseMonkeySetFacebookPrivate.user.js
 // @supportURL  https://github.com/YoraiLevi/SetFacebookPostsPrivate/issues
 // @include     https://www.facebook.com/*
-// @version     0.22.1
+// @version     0.22.2
 // @grant       GM_setValue
 // @grant       GM_getValue
 // @grant       GM.openInTab
