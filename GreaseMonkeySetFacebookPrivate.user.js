@@ -6,7 +6,7 @@
 // @update      https://github.com/YoraiLevi/SetFacebookPostsPrivate/raw/SetPublic/GreaseMonkeySetFacebookPrivate.user.js
 // @supportURL  https://github.com/YoraiLevi/SetFacebookPostsPrivate/issues
 // @include     https://www.facebook.com/*
-// @version     0.22.2
+// @version     0.22.3
 // @grant       GM_setValue
 // @grant       GM_getValue
 // @grant       GM.openInTab
@@ -53,8 +53,8 @@
     const privacy_mode =  {
             "public": "public",
             "friends" : "friends",
-            "friends_except" : "friends_except",
-            "specific_friends" : "specific_friends",
+            // "friends_except" : "friends_except",
+            // "specific_friends" : "specific_friends",
             "private": "private"
         }
     const post_privacy_mode_icons = {
@@ -317,6 +317,7 @@
                     await scrollRange(from)
                     from = await handleRange(from, to)
                 }
+            GM_setValue("active",false)
             }
         }())
     }
