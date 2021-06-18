@@ -1,0 +1,22 @@
+{
+  "name": "monkeyscripts",
+  "version": "0.0.1",
+  "description": "A collection of Tamper(Grease)Monkey scripts for general web automation and personal asistance",
+  "main": " ",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/YoraiLevi/SetFacebookPostsPrivate.git"
+  },
+  "author": "Yorai Levi",
+  "license": "SEE LICENSE IN README.MD",
+  "bugs": {
+    "url": "https://github.com/YoraiLevi/SetFacebookPostsPrivate/issues"
+  },
+  "homepage": "https://github.com/YoraiLevi/SetFacebookPostsPrivate#readme",
+  "devDependencies": {
+    "typescript": "^4.3.4"
+  }
+}
