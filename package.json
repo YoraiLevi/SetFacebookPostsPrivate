@@ -1,11 +1,14 @@
 {
   "name": "monkeyscripts",
   "version": "0.0.1",
-  "description": "A collection of Tamper(Grease)Monkey scripts for general web automation and personal asistance",
-  "main": " ",
+  "description": "A collection of Tampermonkey / Greasemonkey scripts for general web automation and personal asistance",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "webpack"
+    "clean": "rimraf dist",
+    "prebuild": "npm run clean",
+    "build": "webpack",
+    "serve": "webpack serve",
+    "watch": "webpack serve"
   },
   "repository": {
     "type": "git",
@@ -18,11 +21,15 @@
   },
   "homepage": "https://github.com/YoraiLevi/SetFacebookPostsPrivate#readme",
   "devDependencies": {
+    "@types/greasemonkey": "^4.0.1",
+    "@types/webpack-dev-server": "^3.11.4",
+    "rimraf": "^2.7.1",
     "ts-loader": "^9.2.3",
     "ts-node": "^10.0.0",
     "typescript": "^4.3.4",
     "webpack": "^5.39.1",
     "webpack-cli": "^4.7.2",
+    "webpack-dev-server": "^3.11.2",
     "webpack-userscript": "^2.5.8"
   }
 }
