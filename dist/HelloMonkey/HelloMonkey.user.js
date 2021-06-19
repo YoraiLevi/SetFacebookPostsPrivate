@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name Empty Script
-// @version 19.6.2021.10.15
+// @version 19.6.2021.10.24
 // @author Yorai Levi
 // @description Example script for webpack and monkey integration
 // @homepage https://github.com/YoraiLevi/SetFacebookPostsPrivate#readme

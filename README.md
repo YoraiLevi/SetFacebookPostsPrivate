@@ -1,6 +1,6 @@
 # A collection of automation scripts for the web using tampermonkey / greasemonkey
 
-1) ## Bulk Set Facebook Posts' Privacy ([README](./SetFacebookPostsPrivate/README.md) - [INSTALL](./SetFacebookPostsPrivate/GreaseMonkeySetFacebookPrivate.user.js))
+1) ## Bulk Set Facebook Posts' Privacy ([README](./FacebookBulkPrivacy$$/README.md) - [INSTALL](./dist/FacebookBulkPrivacy/FacebookBulkPrivacy.user.js))
 
 2) ## Hello Monkey (World) ([README](./HelloMonkey/README.md) - [INSTALL](./dist/HelloMonkey/HelloMonkey.user.js))
 

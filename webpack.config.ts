@@ -33,5 +33,32 @@ const HelloMonkey : webpack.Configuration = {
     writeToDisk: true
   }
 }
-
-export default [HelloMonkey]
+import {default as FacebookBulkPrivacyoptions} from "./FacebookBulkPrivacy/options"
+const FacebookBulkPrivacy : webpack.Configuration = {
+  mode: dev ? 'development' : 'production',
+  entry: './FacebookBulkPrivacy/index.ts',
+  module: {
+    rules: [
+      {
+        test: /\.tsx?$/,
+        use: 'ts-loader',
+        exclude: /node_modules/,
+      },
+    ],
+  },
+  resolve: {
+    extensions: [ '.tsx', '.ts', '.js' ],
+  },
+  output: {
+    filename: 'FacebookBulkPrivacy.user.js',
+    path: path.resolve(__dirname, 'dist/FacebookBulkPrivacy'),
+  },
+  plugins: [
+    new WebpackUserscript(FacebookBulkPrivacyoptions)
+  ],
+  devServer:{
+    contentBase: path.join(__dirname, 'dist/FacebookBulkPrivacy'),
+    writeToDisk: true
+  }
+}
+export default [HelloMonkey,FacebookBulkPrivacy]
