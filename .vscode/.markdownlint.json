@@ -1,0 +1,6 @@
+{
+    "no-inline-html" : false,
+    "line-length": false,
+    "ul-style": {"style": "asterisk"},
+    "no-duplicate-heading": {"siblings_only": true}
+}
