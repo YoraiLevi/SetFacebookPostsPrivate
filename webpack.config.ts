@@ -4,7 +4,7 @@ import webpack from "webpack";
 import {Configuration} from "webpack-dev-server"
 
 const dev = process.env.NODE_ENV === 'development'
-
+let i=0
 import {default as HelloMonkeyoptions} from "./HelloMonkey/options"
 const HelloMonkey : webpack.Configuration = {
   mode: dev ? 'development' : 'production',
@@ -30,7 +30,8 @@ const HelloMonkey : webpack.Configuration = {
   ],
   devServer:{
     contentBase: path.join(__dirname, 'dist/HelloMonkey'),
-    writeToDisk: true
+    writeToDisk: true,
+    port:8080+(i++)
   }
 }
 import {default as FacebookBulkPrivacyoptions} from "./FacebookBulkPrivacy/options"
@@ -58,7 +59,8 @@ const FacebookBulkPrivacy : webpack.Configuration = {
   ],
   devServer:{
     contentBase: path.join(__dirname, 'dist/FacebookBulkPrivacy'),
-    writeToDisk: true
+    writeToDisk: true,
+    port:8080+(i++)
   }
 }
 export default [HelloMonkey,FacebookBulkPrivacy]
